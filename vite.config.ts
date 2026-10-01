@@ -6,6 +6,7 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   base: process.env.VITE_BASE ?? '/battleship/',
   plugins: [react(), tailwindcss()],
+  build: { chunkSizeWarningLimit: 1200 },
   test: {
     include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
     environment: 'node',
