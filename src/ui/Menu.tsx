@@ -1,3 +1,4 @@
+import { TIMES, WEATHERS } from '../app/atmosphere.ts';
 import { LEVELS, type Settings } from '../app/settings.ts';
 import type { Level } from '../engine/index.ts';
 import { Toggle } from './Toggle.tsx';
@@ -8,6 +9,33 @@ type Props = {
   onStart: () => void;
   record: Record<Level, { wins: number; losses: number }>;
 };
+
+const title = (s: string) => s[0]!.toUpperCase() + s.slice(1);
+
+function Segmented<T extends string>({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: T;
+  options: readonly (readonly [T, string])[];
+  onChange: (v: T) => void;
+}) {
+  return (
+    <div className="option">
+      <span>{label}</span>
+      <div className="segmented" role="radiogroup" aria-label={label}>
+        {options.map(([v, text]) => (
+          <button key={v} type="button" role="radio" aria-checked={value === v} className={value === v ? 'on' : ''} onClick={() => onChange(v)}>
+            {text}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function Menu({ settings, onChange, onStart, record }: Props) {
   return (
@@ -47,29 +75,28 @@ export function Menu({ settings, onChange, onStart, record }: Props) {
         </fieldset>
 
         <div className="menu-options">
-          <div className="option">
-            <span>First broadside</span>
-            <div className="segmented" role="radiogroup" aria-label="Who fires first">
-              {(
-                [
-                  ['player', 'You'],
-                  ['ai', 'Enemy'],
-                  ['coin', 'Coin toss'],
-                ] as const
-              ).map(([value, text]) => (
-                <button
-                  key={value}
-                  type="button"
-                  role="radio"
-                  aria-checked={settings.first === value}
-                  className={settings.first === value ? 'on' : ''}
-                  onClick={() => onChange({ ...settings, first: value })}
-                >
-                  {text}
-                </button>
-              ))}
-            </div>
-          </div>
+          <Segmented
+            label="First broadside"
+            value={settings.first}
+            options={[
+              ['player', 'You'],
+              ['ai', 'Enemy'],
+              ['coin', 'Coin toss'],
+            ]}
+            onChange={(first) => onChange({ ...settings, first })}
+          />
+          <Segmented
+            label="Time of day"
+            value={settings.time}
+            options={[['random', 'Random'], ...TIMES.map((t) => [t, title(t)] as const)]}
+            onChange={(time) => onChange({ ...settings, time })}
+          />
+          <Segmented
+            label="Weather"
+            value={settings.weather}
+            options={[['random', 'Random'], ...WEATHERS.map((w) => [w, title(w)] as const)]}
+            onChange={(weather) => onChange({ ...settings, weather })}
+          />
           <Toggle
             label="3D battle view"
             checked={settings.view === '3d'}

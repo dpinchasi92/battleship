@@ -1,4 +1,5 @@
 import type { Level, Side } from '../engine/index.ts';
+import { isTime, isWeather, type TimeOfDay, type Weather } from './atmosphere.ts';
 
 export type ViewMode = '3d' | '2d';
 export type FirstMove = Side | 'coin';
@@ -10,6 +11,8 @@ export type Settings = {
   music: boolean;
   showBrain: boolean;
   first: FirstMove;
+  time: TimeOfDay | 'random';
+  weather: Weather | 'random';
 };
 
 const KEY = 'broadsides.settings.v1';
@@ -26,6 +29,8 @@ export function loadSettings(): Settings {
     music: true,
     showBrain: false,
     first: 'player',
+    time: 'random',
+    weather: 'random',
   };
   let stored: Partial<Settings>;
   try {
@@ -34,10 +39,14 @@ export function loadSettings(): Settings {
     stored = {};
   }
   const view = params.get('view');
+  const time = params.get('time');
+  const weather = params.get('weather');
   return {
     ...defaults,
     ...stored,
     ...(view === '2d' || view === '3d' ? { view } : {}),
+    ...(isTime(time) ? { time } : {}),
+    ...(isWeather(weather) ? { weather } : {}),
   };
 }
 

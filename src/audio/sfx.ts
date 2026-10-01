@@ -4,6 +4,7 @@
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
 let ambience: { stop: () => void } | null = null;
+let rain: { stop: () => void } | null = null;
 let enabled = true;
 
 function audio(): { ctx: AudioContext; out: GainNode } | null {
@@ -73,7 +74,10 @@ export const sfx = {
   setEnabled(on: boolean) {
     enabled = on;
     if (master && ctx) master.gain.setTargetAtTime(on ? 0.6 : 0, ctx.currentTime, 0.05);
-    if (!on) sfx.stopAmbience();
+    if (!on) {
+      sfx.stopAmbience();
+      sfx.stopRain();
+    }
   },
   cannon() {
     thump(90, 0.5, 0.9);
@@ -90,6 +94,11 @@ export const sfx = {
   sink() {
     thump(45, 2.2, 0.9);
     burst({ duration: 2.4, freq: 600, gain: 0.7 });
+  },
+  thunder(delay = 0.5 + Math.random() * 0.9) {
+    thump(38, 3, 0.55, delay);
+    burst({ duration: 0.35, freq: 2600, gain: 0.25, type: 'highpass', delay });
+    burst({ duration: 3.4, freq: 420, gain: 0.6, delay: delay + 0.08 });
   },
   click() {
     thump(660, 0.08, 0.15);
@@ -141,5 +150,26 @@ export const sfx = {
   stopAmbience() {
     ambience?.stop();
     ambience = null;
+  },
+  startRain() {
+    const a = audio();
+    if (!a || rain) return;
+    const src = a.ctx.createBufferSource();
+    src.buffer = noiseBuffer(a.ctx, 4);
+    src.loop = true;
+    const filter = a.ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = 3200;
+    filter.Q.value = 0.5;
+    const g = a.ctx.createGain();
+    g.gain.setValueAtTime(0.0001, a.ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.06, a.ctx.currentTime + 1.5);
+    src.connect(filter).connect(g).connect(a.out);
+    src.start();
+    rain = { stop: () => src.stop() };
+  },
+  stopRain() {
+    rain?.stop();
+    rain = null;
   },
 };

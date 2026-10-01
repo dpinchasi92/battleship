@@ -33,6 +33,47 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+body[data-sky='dawn'] {
+  background: #0b1d2e radial-gradient(ellipse at top, #c98a8f 0%, #4a5f7f 35%, #0f2a40 75%, #0b1d2e 100%) fixed no-repeat;
+}
+body[data-sky='sunset'] {
+  background: #0b1424 radial-gradient(ellipse at top, #e0884f 0%, #8a4a5a 30%, #2a2f4f 65%, #0b1424 100%) fixed no-repeat;
+}
+body[data-sky='night'] {
+  background: #01050d radial-gradient(ellipse at top, #1d2c50 0%, #08142c 55%, #01050d 100%) fixed no-repeat;
+}
+body[data-weather='fog'] {
+  background: #1d2c35 radial-gradient(ellipse at top, #9aa8b0 0%, #5a6d78 45%, #1d2c35 100%) fixed no-repeat;
+}
+body[data-weather='storm'] {
+  background: #0e161d radial-gradient(ellipse at top, #56616b 0%, #2a3640 50%, #0e161d 100%) fixed no-repeat;
+}
+body[data-sky='night'][data-weather='fog'] {
+  background: #03070e radial-gradient(ellipse at top, #2c3a4c 0%, #131d2b 55%, #03070e 100%) fixed no-repeat;
+}
+body[data-sky='night'][data-weather='storm'] {
+  background: #020408 radial-gradient(ellipse at top, #232b36 0%, #0d1219 55%, #020408 100%) fixed no-repeat;
+}
+body[data-weather='storm']::before {
+  content: '';
+  position: fixed;
+  inset: -20% 0 0;
+  pointer-events: none;
+  z-index: 0;
+  background: repeating-linear-gradient(103deg, transparent 0 22px, #d4dde61f 22px 23px, transparent 23px 47px);
+  background-size: 120px 120px;
+  animation: rain 0.45s linear infinite;
+}
+body[data-weather='storm'] #root {
+  position: relative;
+  z-index: 1;
+}
+@keyframes rain {
+  to {
+    background-position: -26px 120px;
+  }
+}
+
 button {
   font: inherit;
   cursor: pointer;
@@ -346,8 +387,10 @@ kbd {
 }
 .option {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem 0.5rem;
 }
 .segmented {
   display: inline-flex;

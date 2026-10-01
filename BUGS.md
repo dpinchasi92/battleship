@@ -58,3 +58,8 @@ Bugs found while building Broadsides: how each was found, its root cause, and th
 - **Symptom:** found by the recorded play-test. At 390×844 in the 2D Cadet setup the page scrolled sideways by about 8px, and the right edges of the cards were clipped.
 - **Root cause:** a mobile media query set `.coach { width: calc(100vw - 1rem) }`. That rule came after `.coach-inline { width: auto }` with the same specificity, so it also sized the inline coach. With a classic (non-overlay) scrollbar, `100vw` includes the scrollbar, so the coach was wider than its column.
 - **Fix:** the rule now targets only the floating coach (`.coach:not(.coach-inline)`) and uses `100%` instead of `100vw`.
+
+### B11: Checkerboard shimmer on the water once the sun glints into view
+- **Symptom:** while adding time-of-day lighting, the glitter path that reflects the sun and moon on the sea showed a regular grid of bright dots, worst at night and sunset.
+- **Root cause:** the ocean's fine ripple normals use `cos(x * 3.1) * sin(z * 2.7)`, a separable pattern that forms a grid. The tight specular highlight had never been visible before, because the real sun reflected outside the tilted battle camera. Aiming the highlight into view showed the grid, and from far away the pattern aliased into a moiré.
+- **Fix:** the true specular term still uses the real sun. The glitter path uses its own direction and only the smooth, large-scale swell normals, with value noise added for sparkle.

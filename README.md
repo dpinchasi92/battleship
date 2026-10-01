@@ -8,10 +8,11 @@ A medieval naval duel against an explainable AI, rendered as a modern stylised 3
 
 - **Four opponents:** Cadet (an interactive "teach me how to play" tutorial), Deckhand (random), Captain (hunt/target) and Admiral (probability density).
 - **Explainable AI:** turn on *AI Brain* to see the enemy's heatmap over your fleet and read why it chose each shot. In Cadet mode, *Hint* uses the Admiral's model to coach you.
-- **3D scene** (React Three Fiber): a shader ocean, procedurally modelled galleons, cannonball arcs, splashes, explosions, fire and smoke, and animated crews who leap overboard and swim for it when their ship sinks. There is no external art; even the sound effects are synthesised with the Web Audio API.
+- **3D scene** (React Three Fiber): a shader ocean, procedurally modelled galleons, cannonball arcs, splashes, explosions, fire and smoke, and animated crews who leap overboard and swim for it when their ship sinks.
+- **Weather and time of day:** every battle sails at dawn, by day, at sunset or by night (moonlit glitter path and stars), under clear skies, rolling fog or a storm with rain, lightning and thunder. Pick each from the menu or leave it on Random. The 2D view tints its backdrop to match. There is no external art; even the sound effects are synthesised with the Web Audio API.
 - **2D fallback:** used automatically when WebGL is missing or the user prefers reduced motion, and available from a toggle at any time.
 - **Accessible:** keyboard play (arrow keys steer ships in setup and aim in battle; Enter or Space places or fires at the aimed or hovered square; R rotates), screen-reader announcements, ARIA grid labels, and hit/miss markers that don't rely on colour alone.
-- **Reproducible:** `?seed=123` makes fleets and AI choices deterministic, which is handy for bug reports and e2e tests. `?view=2d|3d` forces a view.
+- **Reproducible:** `?seed=123` makes fleets and AI choices deterministic, which is handy for bug reports and e2e tests. `?view=2d|3d` forces a view. `?time=dawn|day|sunset|night` and `?weather=clear|fog|storm` force the sky.
 
 ## Architecture
 

@@ -1,3 +1,4 @@
+import type { Atmosphere } from '../app/atmosphere.ts';
 import type { CellView, Ghost } from '../app/cells.ts';
 import type { ShotEvent, Volley } from '../app/useBattle.ts';
 import type { Coord, Placement, Side } from '../engine/index.ts';
@@ -22,4 +23,6 @@ export type SceneProps = {
   interactiveSide: Side | null;
   onHover: (side: Side, coord: Coord | null) => void;
   onCell: (side: Side, coord: Coord) => void;
+  atmosphere: Atmosphere;
+  onLightning?: () => void;
 };

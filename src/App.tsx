@@ -1,5 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { bestShot } from './ai/index.ts';
+import { atmosphereLabel, resolveAtmosphere, type Atmosphere } from './app/atmosphere.ts';
 import { cellViews, ghostFor, normalizeHeat, setupViews } from './app/cells.ts';
 import { loadRecord, saveRecord } from './app/record.ts';
 import { levelTitle, loadSettings, saveSettings, type Settings } from './app/settings.ts';
@@ -69,6 +70,7 @@ export default function App() {
   const rng = useMemo(() => seededRng(), []);
   const [record, setRecord] = useState(loadRecord);
   const [screen, setScreen] = useState<Screen>('menu');
+  const [atmosphere, setAtmosphere] = useState<Atmosphere>(() => resolveAtmosphere(settings.time, settings.weather));
 
   // Setup
   const [placements, setPlacements] = useState<Placement[]>([]);
@@ -131,6 +133,18 @@ export default function App() {
   }, [musicOn]);
   useEffect(() => () => music.stop(), []);
 
+  const atSea = screen !== 'menu';
+  const rainOn = settings.sound && atSea && atmosphere.weather === 'storm';
+  useEffect(() => {
+    if (rainOn) sfx.startRain();
+    else sfx.stopRain();
+  }, [rainOn]);
+  useEffect(() => {
+    const { dataset } = document.body;
+    dataset.sky = atSea ? atmosphere.time : '';
+    dataset.weather = atSea ? atmosphere.weather : '';
+  }, [atSea, atmosphere]);
+
   // ---- Setup actions
   const pendingPlacement: Placement | null =
     screen === 'setup' && selected && hover ? { type: selected, orientation, row: hover.row, col: hover.col } : null;
@@ -170,6 +184,7 @@ export default function App() {
 
   const goSetup = () => {
     battle.reset();
+    setAtmosphere(resolveAtmosphere(settings.time, settings.weather));
     setScreen('setup');
     setReviewing(false);
     setHint(null);
@@ -372,6 +387,8 @@ export default function App() {
             if (screen === 'setup' && side === 'player') setHover(coord);
             if (screen === 'battle' && side === 'ai' && coord) setCursor(coord);
           },
+          atmosphere,
+          onLightning: () => sfx.thunder(),
           onCell: (side: Side, coord: Coord) => {
             if (screen === 'setup' && side === 'player') onSetupCell(coord);
             if (screen === 'battle' && side === 'ai') fireAt(coord);
@@ -386,7 +403,9 @@ export default function App() {
       </button>
       <div className="topbar-title">
         <span className="brand">Broadsides</span>
-        <span className="muted">vs {levelTitle(settings.level)}</span>
+        <span className="muted" data-testid="voyage">
+          vs {levelTitle(settings.level)} · {atmosphereLabel(atmosphere)}
+        </span>
       </div>
       <div className="topbar-controls">
         {screen === 'battle' && (

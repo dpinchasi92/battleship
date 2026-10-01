@@ -8,12 +8,16 @@ import { Cannonball, ImpactBursts } from './Effects.tsx';
 import { Markers } from './Markers.tsx';
 import { Ocean } from './Ocean.tsx';
 import { ShipModel } from './ShipModel.tsx';
+import { glintDirection, skyLook } from './skyPresets.ts';
 import type { SceneProps } from './types.ts';
-
-const SUN = new THREE.Vector3(-60, 18, -100);
+import { Lightning, NightSky, Rain } from './Weather.tsx';
 
 export default function Scene3D(props: SceneProps) {
-  const sunDir = useMemo(() => SUN.clone().normalize(), []);
+  const look = useMemo(() => skyLook(props.atmosphere), [props.atmosphere]);
+  const sunDir = useMemo(() => new THREE.Vector3(...look.sun).normalize(), [look]);
+  const glintDir = useMemo(() => new THREE.Vector3(...glintDirection(look.sun)).normalize(), [look]);
+  const flash = useMemo(() => ({ value: 0 }), []);
+  const calm = useMemo(() => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false, []);
   const ghostPlacement = props.ghost && props.mode === 'setup' ? props.ghost : null;
 
   return (
@@ -24,13 +28,24 @@ export default function Scene3D(props: SceneProps) {
       aria-label="3D battle view. Use arrow keys and Enter to aim and fire."
       onPointerMissed={() => props.onHover(props.mode === 'setup' ? 'player' : 'ai', null)}
     >
-      <color attach="background" args={['#b9cbd6']} />
-      <fog attach="fog" args={['#b9cbd6', 35, 110]} />
-      <Sky sunPosition={SUN.toArray()} turbidity={6} rayleigh={1.6} mieCoefficient={0.006} mieDirectionalG={0.85} />
-      <hemisphereLight args={['#dbe9f4', '#0b3a53', 0.9]} />
-      <directionalLight position={SUN.toArray()} intensity={1.6} color="#ffe2b8" />
-      <directionalLight position={[20, 25, 30]} intensity={0.5} color="#bcd6ff" />
-      <Ocean sunDirection={sunDir} />
+      <color attach="background" args={[look.background]} />
+      <fog key={`${look.fog.color}-${look.fog.near}`} attach="fog" args={[look.fog.color, look.fog.near, look.fog.far]} />
+      {look.sky && (
+        <Sky
+          sunPosition={look.sun}
+          turbidity={look.sky.turbidity}
+          rayleigh={look.sky.rayleigh}
+          mieCoefficient={look.sky.mie}
+          mieDirectionalG={look.sky.mieG}
+        />
+      )}
+      {look.moon && <NightSky moonPosition={look.sun} stars={look.stars} />}
+      <hemisphereLight args={[look.hemi.sky, look.hemi.ground, look.hemi.intensity]} />
+      <directionalLight position={look.sun} intensity={look.key.intensity} color={look.key.color} />
+      <directionalLight position={[20, 25, 30]} intensity={look.fill.intensity} color={look.fill.color} />
+      <Ocean sunDirection={sunDir} glintDirection={glintDir} look={look.ocean} fog={look.fog} flash={flash} />
+      {look.rain && <Rain />}
+      {look.lightning && !calm && <Lightning flash={flash} onStrike={props.onLightning} />}
       <CameraRig focus={props.focus} mode={props.mode} />
 
       <BoardGrid

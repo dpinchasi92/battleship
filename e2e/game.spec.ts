@@ -161,3 +161,29 @@ test('arrow keys steer the selected ship during setup and Enter drops it', async
   await expect(page.getByTestId('own-board-B10')).toHaveAttribute('aria-label', /open sea/);
   await expect(page.getByTestId('pick-galleon')).toHaveAttribute('aria-pressed', 'true');
 });
+
+test('the menu sets the time of day and weather for the voyage', async ({ page }) => {
+  await page.goto(`?view=2d&seed=${SEED}`);
+  await page.getByRole('radiogroup', { name: 'Time of day' }).getByRole('radio', { name: 'Sunset' }).click();
+  await page.getByRole('radiogroup', { name: 'Weather' }).getByRole('radio', { name: 'Fog' }).click();
+  await page.locator('.level-card', { hasText: 'Deckhand' }).click();
+  await page.getByTestId('set-sail').click();
+  await expect(page.getByTestId('voyage')).toContainText('Foggy sunset');
+  await expect(page.locator('body')).toHaveAttribute('data-sky', 'sunset');
+  await expect(page.locator('body')).toHaveAttribute('data-weather', 'fog');
+
+  await page.getByRole('button', { name: /Menu/ }).click();
+  await expect(page.locator('body')).toHaveAttribute('data-weather', '');
+});
+
+test('a stormy night renders in 3D without errors', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openSetup(page, 'Deckhand', `?view=3d&seed=${SEED}&time=night&weather=storm`);
+  await expect(page.locator('canvas')).toBeVisible();
+  await expect(page.getByTestId('voyage')).toContainText('Stormy night');
+  await page.getByTestId('randomize').click();
+  await page.getByTestId('start-battle').click();
+  await page.waitForTimeout(1500);
+  expect(errors).toEqual([]);
+});
