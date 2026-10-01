@@ -6,15 +6,13 @@
 
 ## 1. Summary
 
-A browser-based Battleship game where a single player battles an AI opponent. Deployed at a public URL (zero install, zero login) with a public GitHub repo. The goal is not just "a working Battleship" but a game that shows **strong engineering judgment**: a clean, tested game engine, a genuinely smart and *explainable* AI, polished UX, and a transparent record of the bugs found and fixed along the way.
+A browser-based Battleship game where a single player battles an AI opponent. Deployed at a public URL (zero install, zero login) with a public GitHub repo. The goal: a clean, tested game engine, a genuinely smart and *explainable* AI, polished UX.
 
 ### Assignment (verbatim requirements) → how we satisfy them
 | Requirement | Deliverable |
 |---|---|
-| Battleship game playable online against an AI; send a link | GitHub Pages URL (`https://dpinchasi92.github.io/battleship/`) |
-| Game is debugged; short document on bugs found and how they were fixed | `BUGS.md` in the repo (linked from README) |
-| Code in a public GitHub repo; send the link | `https://github.com/dpinchasi92/battleship` |
-| Any resources allowed (Devin Cloud/Desktop/CLI) except another person writing/editing code | Built by Dan + Devin only; no outside human code contributions |
+| Battleship game playable online against an AI; send a link | GitHub Pages URL (`https://dpinchasi92.github.io/battleship/`) 
+| document on bugs found and how they were fixed | `BUGS.md` in the repo (linked from README) |
 
 ## 2. Goals & Non-Goals
 
@@ -34,9 +32,8 @@ A browser-based Battleship game where a single player battles an AI opponent. De
 
 | Persona | What they do | What they need |
 |---|---|---|
-| Recruiter | Clicks link, plays 1 game (2–5 min) | Instant load, obvious controls, fun, looks professional |
-| Engineer / interviewer | Plays, then opens the repo | Readable code, tests, AI design rationale, bug write-ups |
-| Dan (in interview) | Walks through design and bugs | Clear story: decisions, trade-offs, what broke and why |
+| User | Clicks link, plays 1 game (2–5 min) | Instant load, obvious controls, fun, looks professional |
+| Engineer | Plays, then opens the repo | Readable code, tests, AI design rationale, bug write-ups |
 
 ## 4. Game Rules (Classic)
 
@@ -182,12 +179,12 @@ Devin build time is a few sessions; the week leaves room for Dan's review, playt
 | 3 | M4: 3D scene: ocean, galleons, camera, placement in 3D | Can play a full game in 3D |
 | 4 | M5: Combat effects, audio, AI-brain heatmap, parchment UI | "Wow" pass complete |
 | 5 | M6: Mobile, accessibility, performance, Playwright e2e in CI, replay/stats | Lighthouse ≥ 90, e2e green |
-| 6 | M7: Bug bash (Dan playtests + Devin), finalize BUGS.md, README + demo GIF, AI.md | Zero known P0/P1 bugs |
+| 6 | M7: Bug bash (Dan playtests + Devin), README + demo GIF, AI.md | 
 | 7 | Buffer · interview talking points · submit links | Links sent |
 
 ## 10. Success Criteria
 
-- Recruiter can open the link and finish a game with no instructions.
+- Users can open the link and finish a game with no instructions.
 - Hard AI average shots-to-win ≤ 50 over 10,000 simulated games.
 - CI green; engine and AI test coverage ≥ 90%.
 - Zero known P0/P1 bugs at submission; bug log has real, well-explained entries.
