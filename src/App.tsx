@@ -7,6 +7,7 @@ import { turnText } from './app/text.ts';
 import { nextStepIndex, TUTORIAL, type TutorialContext } from './app/tutorial.ts';
 import { seededRng, useBattle, type ShotEvent } from './app/useBattle.ts';
 import { supportsWebGL } from './app/webgl.ts';
+import { music } from './audio/music.ts';
 import { sfx } from './audio/sfx.ts';
 import {
   BOARD_SIZE,
@@ -18,6 +19,7 @@ import {
   randomFleet,
 
   shipCells,
+  shipSpec,
   statsFor,
   toIndex,
   type Board,
@@ -121,16 +123,23 @@ export default function App() {
   });
   const game = battle.state;
 
+  const musicOn = settings.sound && settings.music && screen === 'battle';
+  useEffect(() => {
+    if (musicOn) music.start();
+    else music.stop();
+  }, [musicOn]);
+  useEffect(() => () => music.stop(), []);
+
   // ---- Setup actions
   const pendingPlacement: Placement | null =
     screen === 'setup' && selected && hover ? { type: selected, orientation, row: hover.row, col: hover.col } : null;
 
-  const selectNextUnplaced = (next: Placement[]) => {
+  const selectNextUnplaced = useCallback((next: Placement[]) => {
     const remaining = FLEET.find((s) => !next.some((p) => p.type === s.type));
     setSelected(remaining?.type ?? null);
-  };
+  }, []);
 
-  const onSetupCell = (coord: Coord) => {
+  const onSetupCell = useCallback((coord: Coord) => {
     if (selected) {
       const next = placeShip(placements, { type: selected, orientation, row: coord.row, col: coord.col });
       if (!next) return;
@@ -145,7 +154,7 @@ export default function App() {
       setSelected(existing.type);
       setOrientation(existing.orientation);
     }
-  };
+  }, [selected, orientation, placements, selectNextUnplaced]);
 
   const onSetupPick = (type: ShipType) => {
     const existing = placements.find((p) => p.type === type);
@@ -208,22 +217,44 @@ export default function App() {
     setCursor(decision.coord);
   }, [game, rng]);
 
-  // ---- Keyboard: R rotates in setup; arrows + Enter aim and fire in the 3D view.
+  // ---- Keyboard: in setup, arrows steer the selected ship, Enter drops it and R rotates;
+  // in the 3D battle view, arrows + Enter aim and fire. The 2D grid handles its own keys.
   useEffect(() => {
+    const moves: Record<string, [number, number]> = {
+      ArrowUp: [-1, 0],
+      ArrowDown: [1, 0],
+      ArrowLeft: [0, -1],
+      ArrowRight: [0, 1],
+    };
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
       if (target?.closest('input, textarea, [role="grid"]')) return;
-      if (screen === 'setup' && (e.key === 'r' || e.key === 'R')) {
-        rotate();
+      if (screen === 'setup') {
+        if (e.key === 'r' || e.key === 'R') {
+          rotate();
+          return;
+        }
+        if (!selected) return;
+        const step = moves[e.key];
+        if (step) {
+          e.preventDefault();
+          const { length } = shipSpec(selected);
+          const maxRow = orientation === 'v' ? BOARD_SIZE - length : BOARD_SIZE - 1;
+          const maxCol = orientation === 'h' ? BOARD_SIZE - length : BOARD_SIZE - 1;
+          setHover((h) => {
+            const base = h ?? { row: 0, col: 0 };
+            return {
+              row: Math.min(maxRow, Math.max(0, base.row + (h ? step[0] : 0))),
+              col: Math.min(maxCol, Math.max(0, base.col + (h ? step[1] : 0))),
+            };
+          });
+        } else if ((e.key === 'Enter' || e.key === ' ') && hover && (!target?.closest('button') || target.closest('.ship-list'))) {
+          e.preventDefault();
+          onSetupCell(hover);
+        }
         return;
       }
       if (screen !== 'battle' || view !== '3d' || target?.closest('button')) return;
-      const moves: Record<string, [number, number]> = {
-        ArrowUp: [-1, 0],
-        ArrowDown: [1, 0],
-        ArrowLeft: [0, -1],
-        ArrowRight: [0, 1],
-      };
       const move = moves[e.key];
       if (move) {
         e.preventDefault();
@@ -241,7 +272,7 @@ export default function App() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [screen, view, cursor, fireAt, rotate]);
+  }, [screen, view, cursor, fireAt, rotate, selected, orientation, hover, onSetupCell]);
 
   // ---- Tutorial
   const tutorialCtx: TutorialContext = useMemo(() => {
@@ -371,6 +402,7 @@ export default function App() {
             if (sound && screen === 'battle') sfx.startAmbience();
           }}
         />
+        <Toggle compact label="Music" checked={settings.music} onChange={(on) => setSettings({ ...settings, music: on })} />
       </div>
     </header>
   );

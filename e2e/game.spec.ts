@@ -120,3 +120,26 @@ test('3D view renders a WebGL canvas and lets the player switch to 2D', async ({
   await page.getByRole('switch', { name: '3D' }).click();
   await expect(page.getByTestId('own-board')).toBeVisible();
 });
+
+test('menu labels each opponent with its difficulty', async ({ page }) => {
+  await page.goto('?view=2d');
+  await expect(page.locator('.level-card', { hasText: 'Deckhand' })).toContainText('(Easy)');
+  await expect(page.locator('.level-card', { hasText: 'Captain' })).toContainText('(Medium)');
+  await expect(page.locator('.level-card', { hasText: 'Admiral' })).toContainText('(High)');
+});
+
+test('arrow keys steer the selected ship during setup and Enter drops it', async ({ page }) => {
+  await openSetup(page, 'Deckhand');
+  await page.getByTestId('pick-manOWar').click();
+  await page.getByTestId('own-board-A1').hover();
+  // Arrows move the ghost from where the mouse left it, clamped so the ship stays on the board.
+  for (const key of ['ArrowRight', 'ArrowRight', 'ArrowRight', 'ArrowDown', 'ArrowRight', 'ArrowRight', 'ArrowRight', 'ArrowRight', 'ArrowLeft']) {
+    await page.keyboard.press(key);
+  }
+  await page.keyboard.press('Enter');
+  // Man-o'-War (5) can start no further right than column 6; one step left lands it on B5–B9.
+  await expect(page.getByTestId('own-board-B5')).toHaveAttribute('aria-label', /Man-o'-War/);
+  await expect(page.getByTestId('own-board-B9')).toHaveAttribute('aria-label', /Man-o'-War/);
+  await expect(page.getByTestId('own-board-B10')).toHaveAttribute('aria-label', /open sea/);
+  await expect(page.getByTestId('pick-galleon')).toHaveAttribute('aria-pressed', 'true');
+});

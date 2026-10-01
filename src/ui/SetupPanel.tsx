@@ -18,7 +18,7 @@ export function SetupPanel(p: Props) {
     <div className="parchment side-panel setup-panel">
       <h2 className="panel-title">Position your fleet</h2>
       <p className="muted small">
-        Pick a ship, then click the sea to place it. Click a placed ship to move it. Press <kbd>R</kbd> to rotate.
+        Pick a ship, then click the sea to place it, or steer it with the arrow keys and press <kbd>Enter</kbd> to drop anchor. Click a placed ship to move it. Press <kbd>R</kbd> to rotate.
       </p>
       <ul className="ship-list">
         {FLEET.map((spec) => {

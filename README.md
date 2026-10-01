@@ -10,7 +10,7 @@ A medieval naval duel against an explainable AI, rendered as a modern stylised 3
 - **Explainable AI:** turn on *AI Brain* to see the enemy's heatmap over your fleet and read why it chose each shot. In Cadet mode, *Hint* uses the Admiral's model to coach you.
 - **3D scene** (React Three Fiber): a shader ocean, procedurally modelled galleons, cannonball arcs, splashes, explosions, fire and smoke, and camera shake. There is no external art; even the sound effects are synthesised with the Web Audio API.
 - **2D fallback:** used automatically when WebGL is missing or the user prefers reduced motion, and available from a toggle at any time.
-- **Accessible:** keyboard play (arrow keys, Enter, R to rotate), screen-reader announcements, ARIA grid labels, and hit/miss markers that don't rely on colour alone.
+- **Accessible:** keyboard play (arrow keys steer ships in setup and aim in battle, Enter, R to rotate), screen-reader announcements, ARIA grid labels, and hit/miss markers that don't rely on colour alone.
 - **Reproducible:** `?seed=123` makes fleets and AI choices deterministic, which is handy for bug reports and e2e tests. `?view=2d|3d` forces a view.
 
 ## Architecture

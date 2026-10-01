@@ -32,6 +32,7 @@ export function Menu({ settings, onChange, onStart, record }: Props) {
                 />
                 <span className="level-title">
                   {l.title}
+                  {l.difficulty && <span className="level-difficulty">({l.difficulty})</span>}
                   {l.level === 'cadet' && <span className="badge">Tutorial</span>}
                 </span>
                 <span className="level-blurb">{l.blurb}</span>
@@ -75,6 +76,7 @@ export function Menu({ settings, onChange, onStart, record }: Props) {
             onChange={(on) => onChange({ ...settings, view: on ? '3d' : '2d' })}
           />
           <Toggle label="Sound" checked={settings.sound} onChange={(sound) => onChange({ ...settings, sound })} />
+          <Toggle label="Music" checked={settings.music} onChange={(music) => onChange({ ...settings, music })} />
         </div>
 
         <button type="button" className="btn btn-primary btn-big" onClick={onStart} data-testid="set-sail">

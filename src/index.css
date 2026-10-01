@@ -306,7 +306,15 @@ kbd {
   color: var(--wood);
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  flex-wrap: wrap;
+  gap: 0.1rem 0.4rem;
+}
+.level-difficulty {
+  flex-basis: 100%;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-soft);
 }
 .level-blurb {
   font-size: 0.9rem;

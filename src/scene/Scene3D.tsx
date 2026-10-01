@@ -1,6 +1,6 @@
 import { Sky } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
-import { useCallback, useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import * as THREE from 'three';
 import { BoardGrid } from './BoardGrid.tsx';
 import { CameraRig } from './CameraRig.tsx';
@@ -13,10 +13,6 @@ import type { SceneProps } from './types.ts';
 const SUN = new THREE.Vector3(-60, 18, -100);
 
 export default function Scene3D(props: SceneProps) {
-  const shake = useRef(0);
-  const onShake = useCallback((amount: number) => {
-    shake.current = Math.max(shake.current, amount);
-  }, []);
   const sunDir = useMemo(() => SUN.clone().normalize(), []);
   const ghostPlacement = props.ghost && props.mode === 'setup' ? props.ghost : null;
 
@@ -35,7 +31,7 @@ export default function Scene3D(props: SceneProps) {
       <directionalLight position={SUN.toArray()} intensity={1.6} color="#ffe2b8" />
       <directionalLight position={[20, 25, 30]} intensity={0.5} color="#bcd6ff" />
       <Ocean sunDirection={sunDir} />
-      <CameraRig focus={props.focus} mode={props.mode} shake={shake} />
+      <CameraRig focus={props.focus} mode={props.mode} />
 
       <BoardGrid
         side="player"
@@ -81,7 +77,7 @@ export default function Scene3D(props: SceneProps) {
       )}
 
       {props.volley && <Cannonball key={props.volley.id} volley={props.volley} />}
-      <ImpactBursts lastShot={props.lastShot} onShake={onShake} />
+      <ImpactBursts lastShot={props.lastShot} />
     </Canvas>
   );
 }

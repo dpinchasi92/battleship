@@ -1,17 +1,18 @@
 import { useFrame, useThree } from '@react-three/fiber';
-import { useMemo, useRef, type MutableRefObject } from 'react';
+import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { BOARD_OFFSET } from './layout.ts';
 
-type Props = { focus: 'player' | 'enemy' | 'both'; mode: 'setup' | 'battle'; shake: MutableRefObject<number> };
+type Props = { focus: 'player' | 'enemy' | 'both'; mode: 'setup' | 'battle' };
 
 const DIRECTION = new THREE.Vector3(0, 0.78, 0.63).normalize();
 
 /**
- * Frames the active board(s) for any aspect ratio, easing between shots, with impact shake.
+ * Frames the active board(s) for any aspect ratio. Wide screens hold one steady shot of both boards;
+ * narrow screens can only fit one board, so they ease to whichever board is in play.
  * On wide screens the projection is shifted so the boards center in the area left of the HUD panel.
  */
-export function CameraRig({ focus, mode, shake }: Props) {
+export function CameraRig({ focus, mode }: Props) {
   const { camera, size } = useThree();
   const look = useRef(new THREE.Vector3(0, 0, 0));
   const desiredPos = useMemo(() => new THREE.Vector3(), []);
@@ -31,7 +32,7 @@ export function CameraRig({ focus, mode, shake }: Props) {
     const aspect = (size.width - inset) / size.height;
     const wide = aspect >= 1.15;
     const showBoth = focus === 'both' || (wide && mode === 'battle');
-    const centerX = showBoth ? (wide && focus !== 'both' ? (focus === 'enemy' ? 1 : -1) * 0.8 : 0) : focus === 'player' ? -BOARD_OFFSET : BOARD_OFFSET;
+    const centerX = showBoth ? 0 : focus === 'player' ? -BOARD_OFFSET : BOARD_OFFSET;
     const width = showBoth ? BOARD_OFFSET * 2 + 13 : 13.5;
     const depth = 14;
     const vfov = THREE.MathUtils.degToRad(cam.fov);
@@ -42,12 +43,6 @@ export function CameraRig({ focus, mode, shake }: Props) {
     const k = 1 - Math.exp(-delta * 2.2);
     cam.position.lerp(desiredPos, k);
     look.current.lerp(desiredLook, k);
-    if (shake.current > 0.001) {
-      const s = shake.current;
-      cam.position.x += (Math.random() - 0.5) * s;
-      cam.position.y += (Math.random() - 0.5) * s;
-      shake.current *= Math.exp(-delta * 6);
-    }
     cam.lookAt(look.current);
     state.invalidate();
   });

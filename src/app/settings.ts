@@ -7,6 +7,7 @@ export type Settings = {
   level: Level;
   view: ViewMode;
   sound: boolean;
+  music: boolean;
   showBrain: boolean;
   first: FirstMove;
 };
@@ -22,6 +23,7 @@ export function loadSettings(): Settings {
     level: 'cadet',
     view: prefersReducedMotion() ? '2d' : '3d',
     sound: true,
+    music: true,
     showBrain: false,
     first: 'player',
   };
@@ -47,11 +49,11 @@ export function saveSettings(settings: Settings) {
   }
 }
 
-export const LEVELS: { level: Level; title: string; blurb: string }[] = [
+export const LEVELS: { level: Level; title: string; difficulty?: string; blurb: string }[] = [
   { level: 'cadet', title: 'Cadet', blurb: 'Teach me how to play. A guided first voyage with hints.' },
-  { level: 'easy', title: 'Deckhand', blurb: 'The enemy fires blindly into the fog.' },
-  { level: 'medium', title: 'Captain', blurb: 'Hunts methodically and finishes wounded ships.' },
-  { level: 'hard', title: 'Admiral', blurb: 'Calculates the odds of every square. Show no mercy.' },
+  { level: 'easy', title: 'Deckhand', difficulty: 'Easy', blurb: 'The enemy fires blindly into the fog.' },
+  { level: 'medium', title: 'Captain', difficulty: 'Medium', blurb: 'Hunts methodically and finishes wounded ships.' },
+  { level: 'hard', title: 'Admiral', difficulty: 'High', blurb: 'Calculates the odds of every square. Show no mercy.' },
 ];
 
 export const levelTitle = (level: Level) => LEVELS.find((l) => l.level === level)?.title ?? level;

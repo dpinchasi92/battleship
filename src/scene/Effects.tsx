@@ -58,7 +58,7 @@ const jitter = (seed: number) => {
 const LIFE = 1.3;
 
 /** Spawns a splash or explosion burst for each landed shot. */
-export function ImpactBursts({ lastShot, onShake }: { lastShot: ShotEvent | null; onShake: (amount: number) => void }) {
+export function ImpactBursts({ lastShot }: { lastShot: ShotEvent | null }) {
   const [bursts, setBursts] = useState<Burst[]>([]);
   const seen = useRef<number | null>(null);
   useEffect(() => {
@@ -68,10 +68,9 @@ export function ImpactBursts({ lastShot, onShake }: { lastShot: ShotEvent | null
     const kind = lastShot.result.kind === 'miss' ? 'splash' : 'explosion';
     const burst: Burst = { id: lastShot.id, position: new THREE.Vector3(x, 0.2, z), kind };
     setBursts((b) => [...b, burst]);
-    if (kind === 'explosion') onShake(lastShot.result.kind === 'sunk' ? 0.35 : 0.18);
     const id = setTimeout(() => setBursts((b) => b.filter((x) => x.id !== burst.id)), LIFE * 1000 + 200);
     return () => clearTimeout(id);
-  }, [lastShot, onShake]);
+  }, [lastShot]);
   return (
     <>
       {bursts.map((b) => (

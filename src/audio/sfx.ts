@@ -66,6 +66,9 @@ function thump(freq: number, duration: number, gain: number, delay = 0) {
   osc.stop(t + duration);
 }
 
+/** Shared audio context and master output, or null when sound is off or unsupported. */
+export const audioOut = () => audio();
+
 export const sfx = {
   setEnabled(on: boolean) {
     enabled = on;
