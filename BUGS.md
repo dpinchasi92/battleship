@@ -53,3 +53,8 @@ Bugs found while building Broadsides: how each was found, its root cause, and th
 - **Symptom:** layout fixes appeared to have no effect in e2e runs.
 - **Root cause:** Playwright's `reuseExistingServer` attached to a `vite preview` process that was already serving an old `dist/`.
 - **Fix:** the server is never reused in CI, and locally the old preview process is stopped before running the suite. CI now runs the e2e job on every PR.
+
+### B10: Horizontal scroll on narrow screens in the Cadet tutorial
+- **Symptom:** found by the recorded play-test. At 390×844 in the 2D Cadet setup the page scrolled sideways by about 8px, and the right edges of the cards were clipped.
+- **Root cause:** a mobile media query set `.coach { width: calc(100vw - 1rem) }`. That rule came after `.coach-inline { width: auto }` with the same specificity, so it also sized the inline coach. With a classic (non-overlay) scrollbar, `100vw` includes the scrollbar, so the coach was wider than its column.
+- **Fix:** the rule now targets only the floating coach (`.coach:not(.coach-inline)`) and uses `100%` instead of `100vw`.
