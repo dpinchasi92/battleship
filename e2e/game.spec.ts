@@ -90,6 +90,24 @@ test('keyboard players can aim with arrows and fire with Enter', async ({ page }
   await expect(page.getByTestId('announcer')).toContainText('E6');
 });
 
+test('mouse players can aim by hovering and fire with Space or Enter', async ({ page }) => {
+  await openSetup(page, 'Deckhand');
+  await page.getByTestId('randomize').click();
+  await page.getByTestId('start-battle').click();
+  await page.getByRole('switch', { name: 'Sound' }).click();
+
+  await page.getByTestId('enemy-board-C3').hover();
+  await expect(page.getByTestId('enemy-board-C3')).toHaveClass(/cell-aim/);
+  await page.keyboard.press('Space');
+  await expect(page.getByTestId('announcer')).toContainText('C3');
+  await expect(page.getByRole('switch', { name: 'Sound' })).toHaveAttribute('aria-checked', 'false');
+
+  await expect(page.locator('.logbook li')).toHaveCount(2, { timeout: 5000 });
+  await page.getByTestId('enemy-board-H8').hover();
+  await page.keyboard.press('Enter');
+  await expect(page.getByTestId('announcer')).toContainText('H8');
+});
+
 test('Cadet tutorial guides the player from setup into battle', async ({ page }) => {
   await openSetup(page, 'Cadet');
   const coach = page.getByTestId('coach');

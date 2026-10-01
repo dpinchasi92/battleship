@@ -565,6 +565,9 @@ kbd {
 .cell-ghost-bad {
   box-shadow: inset 0 0 0 100px #d9534fb3;
 }
+.cell-aim {
+  box-shadow: inset 0 0 0 2px var(--brass-bright);
+}
 .cell-highlight {
   animation: target 0.35s ease-in-out infinite alternate;
 }

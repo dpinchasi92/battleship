@@ -97,6 +97,7 @@ export function Board2D({
                 ghostSet.has(index) ? (ghost?.valid ? 'cell-ghost' : 'cell-ghost-bad') : '',
                 highlight && toIndex(highlight) === index ? 'cell-highlight' : '',
                 hint && toIndex(hint) === index ? 'cell-hint' : '',
+                interactive && cursor && toIndex(cursor) === index ? 'cell-aim' : '',
               ].join(' ');
               return (
                 <button

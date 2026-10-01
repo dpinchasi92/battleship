@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { bestShot } from './ai/index.ts';
 import { cellViews, ghostFor, normalizeHeat, setupViews } from './app/cells.ts';
 import { loadRecord, saveRecord } from './app/record.ts';
@@ -11,6 +11,7 @@ import { music } from './audio/music.ts';
 import { sfx } from './audio/sfx.ts';
 import {
   BOARD_SIZE,
+  coordLabel,
   FLEET,
   isFleetComplete,
   isShipSunk,
@@ -218,7 +219,16 @@ export default function App() {
   }, [game, rng]);
 
   // ---- Keyboard: in setup, arrows steer the selected ship, Enter drops it and R rotates;
-  // in the 3D battle view, arrows + Enter aim and fire. The 2D grid handles its own keys.
+  // in battle, arrows aim and Enter/Space fire at the aimed (or hovered) square. The 2D grid
+  // handles its own keys, and buttons reached with Tab keep their native Enter/Space.
+  const tabbing = useRef(false);
+  useEffect(() => {
+    const onPointer = () => {
+      tabbing.current = false;
+    };
+    window.addEventListener('pointerdown', onPointer);
+    return () => window.removeEventListener('pointerdown', onPointer);
+  }, []);
   useEffect(() => {
     const moves: Record<string, [number, number]> = {
       ArrowUp: [-1, 0],
@@ -228,7 +238,9 @@ export default function App() {
     };
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
+      if (e.key === 'Tab') tabbing.current = true;
       if (target?.closest('input, textarea, [role="grid"]')) return;
+      const nativeButton = !!target?.closest('button') && tabbing.current;
       if (screen === 'setup') {
         if (e.key === 'r' || e.key === 'R') {
           rotate();
@@ -248,23 +260,23 @@ export default function App() {
               col: Math.min(maxCol, Math.max(0, base.col + (h ? step[1] : 0))),
             };
           });
-        } else if ((e.key === 'Enter' || e.key === ' ') && hover && (!target?.closest('button') || target.closest('.ship-list'))) {
+        } else if ((e.key === 'Enter' || e.key === ' ') && hover && (!nativeButton || target?.closest('.ship-list'))) {
           e.preventDefault();
           onSetupCell(hover);
         }
         return;
       }
-      if (screen !== 'battle' || view !== '3d' || target?.closest('button')) return;
+      if (screen !== 'battle' || nativeButton || target?.closest('[role="dialog"]')) return;
       const move = moves[e.key];
       if (move) {
         e.preventDefault();
-        setCursor((c) => {
-          const base = c ?? { row: 4, col: 4 };
-          return {
-            row: Math.min(BOARD_SIZE - 1, Math.max(0, base.row + move[0])),
-            col: Math.min(BOARD_SIZE - 1, Math.max(0, base.col + move[1])),
-          };
-        });
+        const base = cursor ?? { row: 4, col: 4 };
+        const next = {
+          row: Math.min(BOARD_SIZE - 1, Math.max(0, base.row + move[0])),
+          col: Math.min(BOARD_SIZE - 1, Math.max(0, base.col + move[1])),
+        };
+        setCursor(next);
+        if (view === '2d') document.querySelector<HTMLButtonElement>(`[data-testid="enemy-board-${coordLabel(next)}"]`)?.focus();
       } else if ((e.key === 'Enter' || e.key === ' ') && cursor) {
         e.preventDefault();
         fireAt(cursor);
@@ -528,6 +540,7 @@ export default function App() {
                       views={enemyViews!}
                       interactive={yourTurn}
                       onCell={fireAt}
+                      onHover={(c) => c && setCursor(c)}
                       hint={hint?.coord ?? null}
                       highlight={battle.volley?.by === 'player' ? battle.volley.coord : null}
                       cursor={cursor}
