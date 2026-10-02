@@ -123,14 +123,17 @@ export function BoardGrid({ side, title, views, ghost, heat, cursor, hint, targe
   }, [texture, views, heat, ghost]);
 
   useEffect(() => {
-    uniforms.uCursor.value = toVec(cursor);
-    uniforms.uHint.value = toVec(hint);
-    uniforms.uTarget.value = toVec(target);
-    uniforms.uActive.value = interactive ? 1 : 0;
-  }, [uniforms, cursor, hint, target, interactive]);
+    const live = material.current?.uniforms;
+    if (!live) return;
+    live.uCursor!.value = toVec(cursor);
+    live.uHint!.value = toVec(hint);
+    live.uTarget!.value = toVec(target);
+    live.uActive!.value = interactive ? 1 : 0;
+  }, [cursor, hint, target, interactive]);
 
   useFrame(({ clock }) => {
-    uniforms.uTime.value = clock.elapsedTime;
+    const live = material.current?.uniforms;
+    if (live) live.uTime!.value = clock.elapsedTime;
   });
 
   const cellFromEvent = (e: ThreeEvent<PointerEvent | MouseEvent>): Coord | null => {
