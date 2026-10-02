@@ -468,7 +468,8 @@ export default function App() {
       hintReason={hint?.reason ?? null}
       onNext={() => setTutorialIndex(tutorialStep + 1)}
       onSkip={() => setTutorialOn(false)}
-      onHint={yourTurn ? requestHint : null}
+      hintReady={yourTurn}
+      onHint={requestHint}
     />
   ) : null;
 

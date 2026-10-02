@@ -132,6 +132,31 @@ test('Cadet tutorial guides the player from setup into battle', async ({ page })
   await expect(page.locator('.cell-hint')).toHaveCount(1);
 });
 
+test('Quartermaster can be minimized, expanded and closed', async ({ page }) => {
+  await openSetup(page, 'Cadet');
+  const coach = page.getByTestId('coach');
+  await page.getByTestId('coach-next').click();
+  await page.getByTestId('randomize').click();
+  await page.getByTestId('start-battle').click();
+  await page.getByTestId('enemy-board-A1').click();
+  await page.getByTestId('coach-next').click();
+  await expect(coach).toContainText(/Hunting strategy|Finish it off/);
+
+  await page.getByTestId('coach-minimize').click();
+  await expect(coach).not.toContainText('checkerboard');
+  await expect(page.getByTestId('coach-expand')).toContainText(/Hunting strategy|Finish it off/);
+  await expect(page.getByTestId('coach-hint')).toBeEnabled({ timeout: 5000 });
+  await page.getByTestId('coach-hint').click();
+  await expect(page.locator('.cell-hint')).toHaveCount(1);
+
+  await page.getByTestId('coach-expand').click();
+  await expect(coach).toContainText('Hint:');
+
+  await page.getByTestId('coach-close').click();
+  await expect(coach).toHaveCount(0);
+  await expect(page.getByTestId('status').getByRole('button', { name: 'Hint' })).toBeVisible();
+});
+
 test('3D view renders a WebGL canvas and lets the player switch to 2D', async ({ page }) => {
   await openSetup(page, 'Deckhand', `?view=3d&seed=${SEED}`);
   await expect(page.locator('canvas')).toBeVisible({ timeout: 15_000 });
