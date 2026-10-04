@@ -2,7 +2,7 @@
 
 A medieval naval duel against an explainable AI, rendered as a modern stylised 3D sea, with a fully accessible 2D chart-table mode.
 
-**Play:** https://dpinchasi92.github.io/battleship/ ·· **AI write-up:** [docs/AI.md](docs/AI.md) · **PRD:** [docs/PRD.md](docs/PRD.md)
+**Play:** https://battleshipgame.xyz · **AI write-up:** [docs/AI.md](docs/AI.md) · **PRD:** [docs/PRD.md](docs/PRD.md)
 
 ## Features
 
@@ -42,4 +42,4 @@ npm run build
 npm run benchmark -- 2000
 ```
 
-CI runs lint, typecheck, unit tests, build and e2e on every PR. Each merge to `main` deploys to GitHub Pages.
+CI runs lint, typecheck, unit tests, build and e2e on every PR. Each merge to `main` is built and deployed by Cloudflare Workers to https://battleshipgame.xyz.
